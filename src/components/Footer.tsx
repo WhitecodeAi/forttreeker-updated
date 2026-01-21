@@ -1,5 +1,8 @@
+
+"use client";
+
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import {
   Mountain,
   Mail,
@@ -42,13 +45,13 @@ export default function Footer() {
 
   const fetchFooterContent = async () => {
     try {
+      // Use full URL or proxy handled by Next.js
       const response = await fetch("/api/admin/footer-content");
       if (response.ok) {
         const data = await response.json();
         if (data.success) {
           setFooterContent(data.data);
         } else {
-          // Use default content if no custom content exists
           setDefaultFooterContent();
         }
       } else {
@@ -151,7 +154,7 @@ export default function Footer() {
                     </a>
                   ) : (
                     <Link
-                      to={link.url}
+                      href={link.url}
                       className="text-gray-300 hover:text-white transition-colors text-sm"
                     >
                       {link.name}
@@ -240,19 +243,19 @@ export default function Footer() {
             </div>
             <div className="flex space-x-6 mt-4 md:mt-0">
               <Link
-                to="/privacy"
+                href="/privacy"
                 className="text-gray-400 hover:text-white text-sm"
               >
                 Privacy Policy
               </Link>
               <Link
-                to="/terms"
+                href="/terms"
                 className="text-gray-400 hover:text-white text-sm"
               >
                 Terms of Service
               </Link>
               <Link
-                to="/sitemap"
+                href="/sitemap"
                 className="text-gray-400 hover:text-white text-sm"
               >
                 Sitemap

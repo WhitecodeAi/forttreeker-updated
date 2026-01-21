@@ -1,5 +1,9 @@
+
+"use client";
+
 import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
@@ -25,7 +29,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 export default function Navigation() {
   const [isOpen, setIsOpen] = useState(false);
-  const location = useLocation();
+  const pathname = usePathname();
   const { theme, toggleTheme } = useTheme();
   const { user, isAuthenticated, isAdmin, logout } = useAuth();
 
@@ -64,7 +68,7 @@ export default function Navigation() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2">
+          <Link href="/" className="flex items-center space-x-2">
             <Mountain className="h-8 w-8 text-primary" />
             <span className="font-bold text-xl text-foreground">
               FortTrekker
@@ -82,10 +86,10 @@ export default function Navigation() {
               return (
                 <Link
                   key={item.href}
-                  to={item.href}
+                  href={item.href}
                   className={cn(
                     "text-sm font-medium transition-colors hover:text-primary",
-                    location.pathname === item.href
+                    pathname === item.href
                       ? "text-primary"
                       : "text-muted-foreground",
                   )}
@@ -101,10 +105,10 @@ export default function Navigation() {
                 {contentItems.map((item) => (
                   <Link
                     key={item.href}
-                    to={item.href}
+                    href={item.href}
                     className={cn(
                       "text-sm font-medium transition-colors hover:text-primary",
-                      location.pathname === item.href
+                      pathname === item.href
                         ? "text-primary"
                         : "text-muted-foreground",
                     )}
@@ -116,10 +120,10 @@ export default function Navigation() {
                 {/* Admin Panel - only show for admin users */}
                 {isAdmin && (
                   <Link
-                    to="/admin"
+                    href="/admin"
                     className={cn(
                       "text-sm font-medium transition-colors hover:text-primary",
-                      location.pathname === "/admin"
+                      pathname === "/admin"
                         ? "text-primary"
                         : "text-muted-foreground",
                     )}
@@ -185,14 +189,14 @@ export default function Navigation() {
             ) : (
               <div className="flex items-center space-x-2">
                 <Button variant="ghost" size="sm" asChild>
-                  <Link to="/login">Log in</Link>
+                  <Link href="/login">Log in</Link>
                 </Button>
                 <Button
                   size="sm"
                   asChild
                   className="bg-orange-600 hover:bg-orange-700"
                 >
-                  <Link to="/register">Sign up</Link>
+                  <Link href="/register">Sign up</Link>
                 </Button>
               </div>
             )}
@@ -228,10 +232,10 @@ export default function Navigation() {
                 return (
                   <Link
                     key={item.href}
-                    to={item.href}
+                    href={item.href}
                     className={cn(
                       "block px-3 py-2 text-base font-medium transition-colors hover:text-primary hover:bg-accent",
-                      location.pathname === item.href
+                      pathname === item.href
                         ? "text-primary bg-accent"
                         : "text-muted-foreground",
                     )}
@@ -248,10 +252,10 @@ export default function Navigation() {
                   {contentItems.map((item) => (
                     <Link
                       key={item.href}
-                      to={item.href}
+                      href={item.href}
                       className={cn(
                         "block px-3 py-2 text-base font-medium transition-colors hover:text-primary hover:bg-accent",
-                        location.pathname === item.href
+                        pathname === item.href
                           ? "text-primary bg-accent"
                           : "text-muted-foreground",
                       )}
@@ -264,10 +268,10 @@ export default function Navigation() {
                   {/* Admin Panel - only show for admin users */}
                   {isAdmin && (
                     <Link
-                      to="/admin"
+                      href="/admin"
                       className={cn(
                         "block px-3 py-2 text-base font-medium transition-colors hover:text-primary hover:bg-accent",
-                        location.pathname === "/admin"
+                        pathname === "/admin"
                           ? "text-primary bg-accent"
                           : "text-muted-foreground",
                       )}
@@ -327,7 +331,7 @@ export default function Navigation() {
                     asChild
                     className="w-full justify-start px-3 py-2"
                   >
-                    <Link to="/login" onClick={() => setIsOpen(false)}>
+                    <Link href="/login" onClick={() => setIsOpen(false)}>
                       <User className="mr-2 h-4 w-4" />
                       Log in
                     </Link>
@@ -337,7 +341,7 @@ export default function Navigation() {
                     asChild
                     className="w-full justify-start px-3 py-2 bg-orange-600 hover:bg-orange-700"
                   >
-                    <Link to="/register" onClick={() => setIsOpen(false)}>
+                    <Link href="/register" onClick={() => setIsOpen(false)}>
                       <UserCircle className="mr-2 h-4 w-4" />
                       Sign up
                     </Link>

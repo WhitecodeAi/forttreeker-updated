@@ -24,3 +24,8 @@ dist-ssr
 *.sw?
 
 .config/
+
+# Next.js
+/.next/
+/out/
+

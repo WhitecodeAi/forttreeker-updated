@@ -1,21 +1,21 @@
-import { 
-  Fort, 
-  FortsResponse, 
-  FortResponse, 
-  FeaturedFortsResponse, 
-  DistrictsResponse, 
-  DifficultiesResponse, 
+import {
+  Fort,
+  FortsResponse,
+  FortResponse,
+  FeaturedFortsResponse,
+  DistrictsResponse,
+  DifficultiesResponse,
   FortsStatsResponse,
   SearchSuggestionsResponse,
   FortsQueryParams,
-  API_ENDPOINTS 
+  API_ENDPOINTS
 } from '@shared/fort-api';
 
 class APIService {
   private baseURL: string;
 
   constructor() {
-    this.baseURL = import.meta.env.VITE_API_URL || '';
+    this.baseURL = process.env.NEXT_PUBLIC_API_URL || '';
   }
 
   private async fetchAPI<T>(endpoint: string, options?: RequestInit): Promise<T> {
@@ -60,7 +60,7 @@ class APIService {
   // Get all forts with optional filtering and pagination
   async getForts(params?: FortsQueryParams): Promise<FortsResponse> {
     const searchParams = new URLSearchParams();
-    
+
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
         if (value !== undefined && value !== null && value !== '') {
@@ -71,7 +71,7 @@ class APIService {
 
     const queryString = searchParams.toString();
     const url = queryString ? `${API_ENDPOINTS.FORTS}?${queryString}` : API_ENDPOINTS.FORTS;
-    
+
     return this.fetchAPI<FortsResponse>(url);
   }
 
