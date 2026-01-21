@@ -137,7 +137,7 @@ export default function Footer() {
           <div>
             <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
             <ul className="space-y-2">
-              {footerContent.quickLinks.map((link, index) => (
+              {footerContent.quickLinks && Array.isArray(footerContent.quickLinks) && footerContent.quickLinks.map((link, index) => (
                 <li key={index}>
                   {link.url.startsWith("http") ? (
                     <a
@@ -166,7 +166,7 @@ export default function Footer() {
           <div>
             <h3 className="text-lg font-semibold mb-4">Follow Us</h3>
             <div className="flex space-x-4">
-              {footerContent.socialLinks.facebook && (
+              {footerContent.socialLinks?.facebook && (
                 <a
                   href={footerContent.socialLinks.facebook}
                   target="_blank"
@@ -177,7 +177,7 @@ export default function Footer() {
                   <Facebook className="h-5 w-5" />
                 </a>
               )}
-              {footerContent.socialLinks.twitter && (
+              {footerContent.socialLinks?.twitter && (
                 <a
                   href={footerContent.socialLinks.twitter}
                   target="_blank"
@@ -188,7 +188,7 @@ export default function Footer() {
                   <Twitter className="h-5 w-5" />
                 </a>
               )}
-              {footerContent.socialLinks.instagram && (
+              {footerContent.socialLinks?.instagram && (
                 <a
                   href={footerContent.socialLinks.instagram}
                   target="_blank"
@@ -199,7 +199,7 @@ export default function Footer() {
                   <Instagram className="h-5 w-5" />
                 </a>
               )}
-              {footerContent.socialLinks.youtube && (
+              {footerContent.socialLinks?.youtube && (
                 <a
                   href={footerContent.socialLinks.youtube}
                   target="_blank"

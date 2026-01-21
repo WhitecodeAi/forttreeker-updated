@@ -1,4 +1,5 @@
 import { executeQuery, executeUpdate } from "./connection.js";
+import bcrypt from 'bcrypt';
 
 // Database schema creation for MySQL
 export async function runMigrations(): Promise<void> {
@@ -229,8 +230,6 @@ export async function runMigrations(): Promise<void> {
     try {
       const adminExists = await executeQuery(`SELECT id FROM users WHERE email = ? AND role = 'admin'`, ['admin@forttracker.com']);
       if (adminExists.length === 0) {
-        // Default password: admin123 (in production, this should be changed)
-        const bcrypt = require('bcrypt');
         const hashedPassword = await bcrypt.hash('admin123', 10);
 
         await executeQuery(`
