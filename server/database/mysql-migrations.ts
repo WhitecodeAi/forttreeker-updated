@@ -226,6 +226,51 @@ export async function runMigrations(): Promise<void> {
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
     `);
 
+    // Create trek_groups table for group treks
+    await executeQuery(`
+      CREATE TABLE IF NOT EXISTS trek_groups (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        organizer_id INT NOT NULL,
+        title VARCHAR(255) NOT NULL,
+        description TEXT NOT NULL,
+        fort_name VARCHAR(255) NOT NULL,
+        trek_date DATE NOT NULL,
+        duration VARCHAR(50) NOT NULL,
+        difficulty ENUM('Easy', 'Moderate', 'Difficult', 'Expert') NOT NULL,
+        max_participants INT NOT NULL,
+        current_participants INT DEFAULT 0,
+        meeting_point VARCHAR(255) NOT NULL,
+        cost DECIMAL(10,2) NOT NULL,
+        content JSON,
+        status ENUM('open', 'full', 'closed', 'cancelled') DEFAULT 'open',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (organizer_id) REFERENCES users(id) ON DELETE CASCADE,
+        INDEX idx_organizer (organizer_id),
+        INDEX idx_fort_name (fort_name),
+        INDEX idx_trek_date (trek_date),
+        INDEX idx_difficulty (difficulty),
+        INDEX idx_status (status)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    `);
+
+    // Create trek_group_participants table for tracking group joins
+    await executeQuery(`
+      CREATE TABLE IF NOT EXISTS trek_group_participants (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        group_id INT NOT NULL,
+        user_id INT NOT NULL,
+        joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        status ENUM('joined', 'confirmed', 'cancelled') DEFAULT 'joined',
+        FOREIGN KEY (group_id) REFERENCES trek_groups(id) ON DELETE CASCADE,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+        UNIQUE KEY unique_group_user (group_id, user_id),
+        INDEX idx_group_id (group_id),
+        INDEX idx_user_id (user_id),
+        INDEX idx_status (status)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    `);
+
     // Insert default admin user if not exists
     try {
       const adminExists = await executeQuery(`SELECT id FROM users WHERE email = ? AND role = 'admin'`, ['admin@forttracker.com']);
@@ -253,14 +298,23 @@ export async function runMigrations(): Promise<void> {
 // Function to check if migrations are needed
 export async function checkMigrationStatus(): Promise<boolean> {
   try {
+    const requiredTables = ['content_submissions', 'trek_groups', 'trek_group_participants'];
     const tables = await executeQuery(`
       SELECT TABLE_NAME 
       FROM INFORMATION_SCHEMA.TABLES 
       WHERE TABLE_SCHEMA = DATABASE() 
-      AND TABLE_NAME = 'content_submissions'
-    `);
+      AND TABLE_NAME IN (? , ? , ?)
+    `, requiredTables);
 
-    return tables.length > 0;
+    const existingTableNames = tables.map((row: any) => row.TABLE_NAME);
+    const missingTables = requiredTables.filter((table) => !existingTableNames.includes(table));
+
+    if (missingTables.length > 0) {
+      console.log(`⚠️ Missing migration tables: ${missingTables.join(', ')}`);
+      return false;
+    }
+
+    return true;
   } catch (error) {
     console.error("❌ Failed to check migration status:", error);
     return false;

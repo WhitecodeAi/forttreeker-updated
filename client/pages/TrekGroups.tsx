@@ -98,11 +98,11 @@ export default function TrekGroups() {
 
   const fetchTrekGroups = async () => {
     try {
-      const response = await fetch("/api/trek-groups");
+      const response = await fetch("/api/trek-groups/trek-groups");
       if (response.ok) {
         const data = await response.json();
         if (data.success) {
-          setGroups(data.data);
+          setGroups(data.groups);
         } else {
           // Use sample data if no groups exist
           setSampleGroups();
