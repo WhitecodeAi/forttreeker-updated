@@ -10,6 +10,16 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import Navigation from "@/components/Navigation";
 import {
   Users,
@@ -63,6 +73,24 @@ export default function TrekGroups() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterDifficulty, setFilterDifficulty] = useState<string>("all");
   const [filterStatus, setFilterStatus] = useState<string>("all");
+  const [openCreateDialog, setOpenCreateDialog] = useState(false);
+  const [creatingGroup, setCreatingGroup] = useState(false);
+  const [selectedChatGroup, setSelectedChatGroup] = useState<number | null>(null);
+  const [openChatDialog, setOpenChatDialog] = useState(false);
+  const [formData, setFormData] = useState({
+    title: "",
+    description: "",
+    fortName: "",
+    trekDate: "",
+    duration: "",
+    difficulty: "Moderate" as const,
+    maxParticipants: 10,
+    meetingPoint: "",
+    cost: 0,
+    included: "",
+    requirements: "",
+    tags: "",
+  });
 
   useEffect(() => {
     fetchTrekGroups();
@@ -199,6 +227,84 @@ export default function TrekGroups() {
     }
   };
 
+  const handleCreateGroup = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setCreatingGroup(true);
+
+    try {
+      const response = await fetch("/api/trek-groups", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          title: formData.title,
+          description: formData.description,
+          fortName: formData.fortName,
+          trekDate: formData.trekDate,
+          duration: formData.duration,
+          difficulty: formData.difficulty,
+          maxParticipants: parseInt(formData.maxParticipants.toString()),
+          meetingPoint: formData.meetingPoint,
+          cost: parseFloat(formData.cost.toString()),
+          included: formData.included
+            .split("\n")
+            .map((item) => item.trim())
+            .filter((item) => item),
+          requirements: formData.requirements
+            .split("\n")
+            .map((item) => item.trim())
+            .filter((item) => item),
+          tags: formData.tags
+            .split(",")
+            .map((tag) => tag.trim())
+            .filter((tag) => tag),
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          // Reset form and close dialog
+          setFormData({
+            title: "",
+            description: "",
+            fortName: "",
+            trekDate: "",
+            duration: "",
+            difficulty: "Moderate",
+            maxParticipants: 10,
+            meetingPoint: "",
+            cost: 0,
+            included: "",
+            requirements: "",
+            tags: "",
+          });
+          setOpenCreateDialog(false);
+          // Refresh groups
+          fetchTrekGroups();
+        }
+      } else if (response.status === 401) {
+        window.location.href = "/login";
+      }
+    } catch (error) {
+      console.error("Error creating trek group:", error);
+    } finally {
+      setCreatingGroup(false);
+    }
+  };
+
+  const handleFormChange = (
+    field: string,
+    value: string | number
+  ) => {
+    setFormData((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
   const filteredGroups = groups.filter((group) => {
     const matchesSearch =
       group.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -330,10 +436,222 @@ export default function TrekGroups() {
             </h2>
             <p className="text-gray-600">Find your next adventure partner</p>
           </div>
-          <Button className="bg-orange-500 hover:bg-orange-600">
-            <Plus className="h-4 w-4 mr-2" />
-            Create Group
-          </Button>
+          <Dialog open={openCreateDialog} onOpenChange={setOpenCreateDialog}>
+            <DialogTrigger asChild>
+              <Button className="bg-orange-500 hover:bg-orange-600">
+                <Plus className="h-4 w-4 mr-2" />
+                Create Group
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Create New Trek Group</DialogTitle>
+                <DialogDescription>
+                  Fill in the details to create a new trek group and start
+                  organizing adventures!
+                </DialogDescription>
+              </DialogHeader>
+              <form onSubmit={handleCreateGroup} className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="title">Group Title *</Label>
+                    <input
+                      id="title"
+                      type="text"
+                      placeholder="e.g., Rajgad Night Trek"
+                      value={formData.title}
+                      onChange={(e) =>
+                        handleFormChange("title", e.target.value)
+                      }
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-orange-500"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="fortName">Fort Name *</Label>
+                    <input
+                      id="fortName"
+                      type="text"
+                      placeholder="e.g., Rajgad Fort"
+                      value={formData.fortName}
+                      onChange={(e) =>
+                        handleFormChange("fortName", e.target.value)
+                      }
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-orange-500"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <Label htmlFor="description">Description *</Label>
+                  <Textarea
+                    id="description"
+                    placeholder="Describe your trek group..."
+                    value={formData.description}
+                    onChange={(e) =>
+                      handleFormChange("description", e.target.value)
+                    }
+                    required
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-orange-500"
+                    rows={3}
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="trekDate">Trek Date *</Label>
+                    <input
+                      id="trekDate"
+                      type="date"
+                      value={formData.trekDate}
+                      onChange={(e) =>
+                        handleFormChange("trekDate", e.target.value)
+                      }
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-orange-500"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="duration">Duration *</Label>
+                    <input
+                      id="duration"
+                      type="text"
+                      placeholder="e.g., 1 Day or 2 Days, 1 Night"
+                      value={formData.duration}
+                      onChange={(e) =>
+                        handleFormChange("duration", e.target.value)
+                      }
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-orange-500"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <Label htmlFor="difficulty">Difficulty *</Label>
+                    <select
+                      id="difficulty"
+                      value={formData.difficulty}
+                      onChange={(e) =>
+                        handleFormChange("difficulty", e.target.value)
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-orange-500"
+                    >
+                      <option value="Easy">Easy</option>
+                      <option value="Moderate">Moderate</option>
+                      <option value="Difficult">Difficult</option>
+                      <option value="Expert">Expert</option>
+                    </select>
+                  </div>
+                  <div>
+                    <Label htmlFor="maxParticipants">Max Participants *</Label>
+                    <input
+                      id="maxParticipants"
+                      type="number"
+                      min="1"
+                      value={formData.maxParticipants}
+                      onChange={(e) =>
+                        handleFormChange("maxParticipants", parseInt(e.target.value) || 0)
+                      }
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-orange-500"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="cost">Cost (₹) *</Label>
+                    <input
+                      id="cost"
+                      type="number"
+                      min="0"
+                      step="100"
+                      value={formData.cost}
+                      onChange={(e) =>
+                        handleFormChange("cost", parseFloat(e.target.value) || 0)
+                      }
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-orange-500"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <Label htmlFor="meetingPoint">Meeting Point *</Label>
+                  <input
+                    id="meetingPoint"
+                    type="text"
+                    placeholder="e.g., Pune Railway Station"
+                    value={formData.meetingPoint}
+                    onChange={(e) =>
+                      handleFormChange("meetingPoint", e.target.value)
+                    }
+                    required
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-orange-500"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="included">Included Items (one per line)</Label>
+                  <Textarea
+                    id="included"
+                    placeholder="e.g., Transportation&#10;Guide&#10;Breakfast&#10;First Aid"
+                    value={formData.included}
+                    onChange={(e) =>
+                      handleFormChange("included", e.target.value)
+                    }
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-orange-500"
+                    rows={3}
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="requirements">
+                    Requirements (one per line)
+                  </Label>
+                  <Textarea
+                    id="requirements"
+                    placeholder="e.g., Good fitness level&#10;Trekking shoes&#10;Water bottle"
+                    value={formData.requirements}
+                    onChange={(e) =>
+                      handleFormChange("requirements", e.target.value)
+                    }
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-orange-500"
+                    rows={3}
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="tags">Tags (comma-separated)</Label>
+                  <input
+                    id="tags"
+                    type="text"
+                    placeholder="e.g., Night Trek, Sunrise, Historical"
+                    value={formData.tags}
+                    onChange={(e) => handleFormChange("tags", e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-orange-500"
+                  />
+                </div>
+
+                <div className="flex gap-3 justify-end pt-4">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setOpenCreateDialog(false)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    className="bg-orange-500 hover:bg-orange-600"
+                    disabled={creatingGroup}
+                  >
+                    {creatingGroup ? "Creating..." : "Create Group"}
+                  </Button>
+                </div>
+              </form>
+            </DialogContent>
+          </Dialog>
         </div>
 
         {/* Groups Grid */}
@@ -463,7 +781,13 @@ export default function TrekGroups() {
                         <UserPlus className="h-4 w-4 mr-2" />
                         {group.status === "full" ? "Full" : "Join Group"}
                       </Button>
-                      <Button variant="outline">
+                      <Button
+                        variant="outline"
+                        onClick={() => {
+                          setSelectedChatGroup(group.id);
+                          setOpenChatDialog(true);
+                        }}
+                      >
                         <MessageCircle className="h-4 w-4 mr-2" />
                         Chat
                       </Button>
@@ -521,12 +845,34 @@ export default function TrekGroups() {
             <p className="text-gray-600 mb-4">
               Try adjusting your search criteria or create a new group
             </p>
-            <Button className="bg-orange-500 hover:bg-orange-600">
-              <Plus className="h-4 w-4 mr-2" />
-              Create Your Group
-            </Button>
+            <Dialog open={openCreateDialog} onOpenChange={setOpenCreateDialog}>
+              <DialogTrigger asChild>
+                <Button className="bg-orange-500 hover:bg-orange-600">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Create Your Group
+                </Button>
+              </DialogTrigger>
+            </Dialog>
           </div>
         )}
+
+        {/* Chat Dialog */}
+        <Dialog open={openChatDialog} onOpenChange={setOpenChatDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Group Chat</DialogTitle>
+              <DialogDescription>
+                Chat with members of group #{selectedChatGroup}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="py-8 text-center text-gray-500">
+              <p>Chat feature coming soon!</p>
+              <p className="text-sm mt-2">
+                You'll be able to message with other group members here.
+              </p>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );

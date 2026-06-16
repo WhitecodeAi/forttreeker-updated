@@ -144,6 +144,10 @@ export class UserModel {
 }
 
 // Session Model
+function formatMySQLTimestamp(date: Date): string {
+  return date.toISOString().slice(0, 19).replace('T', ' ');
+}
+
 export class SessionModel {
   static async create(userId: number): Promise<{ token: string; expiresAt: string }> {
     const sessionToken = crypto.randomBytes(32).toString('hex');
@@ -155,7 +159,7 @@ export class SessionModel {
       INSERT INTO user_sessions (user_id, session_token, expires_at)
       VALUES (?, ?, ?)
     `,
-      [userId, sessionToken, expiresAt.toISOString()],
+      [userId, sessionToken, formatMySQLTimestamp(expiresAt)],
     );
 
     return {
