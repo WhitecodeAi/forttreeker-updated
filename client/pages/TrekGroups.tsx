@@ -232,7 +232,7 @@ export default function TrekGroups() {
     setCreatingGroup(true);
 
     try {
-      const response = await fetch("/api/trek-groups", {
+      const response = await fetch("/api/trek-groups/trek-groups", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

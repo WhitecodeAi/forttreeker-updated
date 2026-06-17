@@ -1,5 +1,37 @@
 import { executeQuery, executeUpdate, executeInsert } from "./connection";
 
+function safeParseJSON<T>(value: unknown, fallback: T): T {
+  if (value === null || value === undefined) {
+    return fallback;
+  }
+
+  if (typeof value !== 'string') {
+    if (Array.isArray(value) || typeof value === 'object') {
+      return value as T;
+    }
+    return fallback;
+  }
+
+  const normalizeJsonLike = (text: string): string => {
+    // Accept JS-style arrays/objects with single quotes
+    return text
+      .replace(/(['"])?([a-zA-Z0-9_\- ]+)(['"])?:/g, '"$2":')
+      .replace(/'/g, '"');
+  };
+
+  try {
+    return JSON.parse(value) as T;
+  } catch (error) {
+    try {
+      const normalized = normalizeJsonLike(value);
+      return JSON.parse(normalized) as T;
+    } catch (normalizedError) {
+      console.warn('Failed to parse JSON value:', value, normalizedError);
+      return fallback;
+    }
+  }
+}
+
 export interface TrekPlanDB {
   id: string;
   user_id?: number;
@@ -62,7 +94,9 @@ export class TrekPlanService {
 
   static async create(data: Omit<TrekPlan, 'id' | 'createdAt' | 'updatedAt'>): Promise<TrekPlan> {
     const id = this.generateId();
-    const now = new Date().toISOString();
+    let now = new Date().toISOString();
+    now = now.slice(0, 19).replace('T', ' ');
+    data.trekDate = data.trekDate.slice(0, 19).replace('T', ' ');
 
     await executeInsert(`
       INSERT INTO trek_plans (
@@ -255,16 +289,16 @@ export class TrekPlanService {
       userId: dbRow.user_id || undefined,
       name: dbRow.name,
       description: dbRow.description || undefined,
-      selectedForts: JSON.parse(dbRow.selected_forts || '[]'),
+      selectedForts: safeParseJSON<number[]>(dbRow.selected_forts, []),
       trekDate: dbRow.trek_date || undefined,
       groupSize: dbRow.group_size || undefined,
       experience: dbRow.experience || undefined,
-      preferences: JSON.parse(dbRow.preferences || '[]'),
+      preferences: safeParseJSON<string[]>(dbRow.preferences, []),
       notes: dbRow.notes || undefined,
       estimatedDuration: dbRow.estimated_duration || undefined,
       totalDistance: dbRow.total_distance || undefined,
       difficulty: dbRow.difficulty || undefined,
-      gearChecklist: JSON.parse(dbRow.gear_checklist || '[]'),
+      gearChecklist: safeParseJSON<GearItem[]>(dbRow.gear_checklist, []),
       createdAt: new Date(dbRow.created_at),
       updatedAt: new Date(dbRow.updated_at)
     };
