@@ -257,7 +257,7 @@ export default function About() {
                     For general inquiries and support
                   </p>
                   <Button variant="outline" size="sm">
-                    hello@forttracker.com
+                    hello@nomadtrekkers.org
                   </Button>
                 </CardContent>
               </Card>

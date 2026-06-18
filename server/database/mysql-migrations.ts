@@ -273,16 +273,16 @@ export async function runMigrations(): Promise<void> {
 
     // Insert default admin user if not exists
     try {
-      const adminExists = await executeQuery(`SELECT id FROM users WHERE email = ? AND role = 'admin'`, ['admin@forttracker.com']);
+      const adminExists = await executeQuery(`SELECT id FROM users WHERE email = ? AND role = 'admin'`, ['admin@nomadtrekkers.org']);
       if (adminExists.length === 0) {
         const hashedPassword = await bcrypt.hash('admin123', 10);
 
         await executeQuery(`
           INSERT INTO users (email, password_hash, full_name, role, is_active, email_verified)
           VALUES (?, ?, ?, ?, ?, ?)
-        `, ['admin@forttracker.com', hashedPassword, 'System Administrator', 'admin', true, true]);
+        `, ['admin@nomadtrekkers.org', hashedPassword, 'System Administrator', 'admin', true, true]);
 
-        console.log("✅ Default admin user created (admin@forttracker.com / admin123)");
+        console.log("✅ Default admin user created (admin@nomadtrekkers.org / admin123)");
       }
     } catch (error) {
       console.log("ℹ️ Admin user creation skipped (table may already be populated)");

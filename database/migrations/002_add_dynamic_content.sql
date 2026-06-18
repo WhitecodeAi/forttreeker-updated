@@ -65,7 +65,7 @@ CREATE TABLE IF NOT EXISTS trek_group_participants (
 INSERT IGNORE INTO site_content (type, content) VALUES
 ('footer', JSON_OBJECT(
     'aboutText', 'Fort Tracker helps you discover and explore the magnificent forts of Maharashtra. Plan your treks, read reviews, and connect with fellow trekkers for unforgettable adventures.',
-    'contactEmail', 'contact@forttracker.com',
+    'contactEmail', 'contact@nomadtrekkers.org',
     'contactPhone', '+91 9876543210',
     'address', 'Pune, Maharashtra, India',
     'socialLinks', JSON_OBJECT(

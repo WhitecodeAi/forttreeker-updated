@@ -382,7 +382,7 @@ export async function runMigrations(): Promise<void> {
 
     // Insert default admin user if not exists
     try {
-      const adminExists = await executeQuery(`SELECT id FROM users WHERE email = ? AND role = 'admin'`, ['admin@forttracker.com']);
+      const adminExists = await executeQuery(`SELECT id FROM users WHERE email = ? AND role = 'admin'`, ['admin@nomadtrekkers.org']);
       if (adminExists.length === 0) {
         // Default password: admin123 (in production, this should be changed)
         const bcrypt = require('bcrypt');
@@ -391,9 +391,9 @@ export async function runMigrations(): Promise<void> {
         await executeQuery(`
           INSERT INTO users (email, password_hash, full_name, role, is_active, email_verified)
           VALUES (?, ?, ?, ?, ?, ?)
-        `, ['admin@forttracker.com', hashedPassword, 'System Administrator', 'admin', 1, 1]);
+        `, ['admin@nomadtrekkers.org', hashedPassword, 'System Administrator', 'admin', 1, 1]);
 
-        console.log("✅ Default admin user created (admin@forttracker.com / admin123)");
+        console.log("✅ Default admin user created (admin@nomadtrekkers.org / admin123)");
       }
     } catch (error) {
       console.log("ℹ️ Admin user creation skipped (table may already be populated)");
@@ -444,7 +444,7 @@ export async function checkMigrationStatus(): Promise<boolean> {
 
   // Always check admin user creation
   try {
-    const adminExists = await executeQuery(`SELECT id FROM users WHERE email = ? AND role = 'admin'`, ['admin@forttracker.com']);
+    const adminExists = await executeQuery(`SELECT id FROM users WHERE email = ? AND role = 'admin'`, ['admin@nomadtrekkers.org']);
     if (adminExists.length === 0) {
       console.log("🔧 Creating default admin user...");
       return false; // Force migration to run

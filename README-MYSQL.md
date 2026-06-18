@@ -62,7 +62,7 @@ The application includes these tables:
 ## Default Admin User
 
 A default admin user is created:
-- **Email:** admin@forttracker.com
+- **Email:** admin@nomadtrekkers.org
 - **Password:** admin123
 - **Change this password immediately in production!**
 

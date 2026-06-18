@@ -65,7 +65,7 @@ export default function Footer() {
       id: 0,
       aboutText:
         "Fort Tracker helps you discover and explore the magnificent forts of Maharashtra. Plan your treks, read reviews, and connect with fellow trekkers for unforgettable adventures.",
-      contactEmail: "contact@forttracker.com",
+      contactEmail: "contact@nomadtrekkers.org",
       contactPhone: "+91 9876543210",
       address: "Pune, Maharashtra, India",
       socialLinks: {

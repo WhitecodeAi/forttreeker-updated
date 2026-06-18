@@ -62,8 +62,8 @@ async function setupDatabase() {
       `
       INSERT IGNORE INTO users (email, password_hash, full_name, role, is_active, email_verified) 
       VALUES 
-      ('admin@forttracker.com', ?, 'System Administrator', 'admin', TRUE, TRUE),
-      ('demo@forttracker.com', ?, 'Demo User', 'user', TRUE, TRUE)
+      ('admin@nomadtrekkers.org', ?, 'System Administrator', 'admin', TRUE, TRUE),
+      ('demo@nomadtrekkers.org', ?, 'Demo User', 'user', TRUE, TRUE)
     `,
       [adminPassword, demoPassword],
     );
@@ -150,7 +150,7 @@ async function setupDatabase() {
     // Insert sample reviews
     const demoUser = await connection.execute(
       "SELECT id FROM users WHERE email = ?",
-      ["demo@forttracker.com"],
+      ["demo@nomadtrekkers.org"],
     );
     const demoUserId = demoUser[0][0]?.id;
 
@@ -193,8 +193,8 @@ async function setupDatabase() {
     console.log(`   🏰 Forts: ${fortCount[0].count}`);
     console.log(`   ⭐ Reviews: ${reviewCount[0].count}`);
     console.log("\n🔐 Default Login Credentials:");
-    console.log("   Admin: admin@forttracker.com / admin123");
-    console.log("   Demo:  demo@forttracker.com / demo123");
+    console.log("   Admin: admin@nomadtrekkers.org / admin123");
+    console.log("   Demo:  demo@nomadtrekkers.org / demo123");
     console.log("\n🚀 You can now start the application with: npm run dev");
   } catch (error) {
     console.error("❌ Database setup failed:", error.message);
