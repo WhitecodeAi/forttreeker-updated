@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useAuth } from "@/hooks/use-auth";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
@@ -41,6 +42,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { json } from "stream/consumers";
+
+
 
 interface TrekGroup {
   id: number;
@@ -92,13 +96,17 @@ export default function TrekGroups() {
     tags: "",
   });
 
+  const { user } = useAuth();
+ 
+
   useEffect(() => {
+     
     fetchTrekGroups();
   }, []);
 
   const fetchTrekGroups = async () => {
     try {
-      const response = await fetch("/api/trek-groups/trek-groups");
+      const response = await fetch("/api/trek-groups");
       if (response.ok) {
         const data = await response.json();
         if (data.success) {
@@ -210,17 +218,28 @@ export default function TrekGroups() {
 
   const joinGroup = async (groupId: number) => {
     try {
-      const response = await fetch(`/api/trek-groups/${groupId}/join`, {
+      const response = await fetch(`/api/trek-groups/${groupId}/join/`, {
         method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
         credentials: "include",
+        body: JSON.stringify({
+          userId: user.id
+        })
       });
+
+      const data = await response.json();
 
       if (response.ok) {
         // Refresh groups data
         fetchTrekGroups();
       } else {
-        // Handle error or redirect to login
-        window.location.href = "/login";
+        console.log("Join group failed:", data);
+        alert("You Have alerady joined the group");
+        if (response.status === 401) {
+          window.location.href = "/login";
+        }
       }
     } catch (error) {
       console.error("Error joining group:", error);
@@ -232,7 +251,7 @@ export default function TrekGroups() {
     setCreatingGroup(true);
 
     try {
-      const response = await fetch("/api/trek-groups/trek-groups", {
+      const response = await fetch("/api/trek-groups", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -304,6 +323,22 @@ export default function TrekGroups() {
       [field]: value,
     }));
   };
+
+  const deletegroup = async (id: number) => {
+      const response = await fetch(`/api/trek-groups/${id}`,{
+        method: "DELETE",
+        headers:{
+          "Content-Type": "application/json"
+        },
+         credentials: "include"
+      });
+
+      console.log("THis is delete response: ", response.body);
+
+      if(response.ok){
+        fetchTrekGroups();
+      }
+  }
 
   const filteredGroups = groups.filter((group) => {
     const matchesSearch =
@@ -829,8 +864,14 @@ export default function TrekGroups() {
                       <span className="font-medium">Meeting Point: </span>
                       <span>{group.meetingPoint}</span>
                     </div>
+                    {user?.full_name === group.organizer.name?
+                     <Button className="bg-orange-500 hover:bg-orange-600"
+                     onClick={() => deletegroup(group.id)}>
+                        Delete Group
+                     </Button>:<></>}
                   </details>
                 </div>
+                
               </CardContent>
             </Card>
           ))}
