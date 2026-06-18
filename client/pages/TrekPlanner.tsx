@@ -367,7 +367,7 @@ export default function TrekPlanner() {
         groupSize: plannerState.groupSize,
         experience: plannerState.experience,
         preferences: plannerState.preferences,
-        notes: plannerState.notes.trim(),
+        notes: plannerState.notes,
         gearChecklist: gearChecklist,
       };
 

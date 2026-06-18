@@ -1,4 +1,12 @@
+import { string } from "zod";
 import { executeQuery, executeUpdate, executeInsert } from "./connection";
+
+function formatMySQLTimestamp(date: Date | string): string {
+  if(typeof(date) == 'string'){
+    return date.slice(0, 19).replace('T', ' ');
+  }
+  return date.toISOString().slice(0, 19).replace('T', ' ');
+}
 
 function safeParseJSON<T>(value: unknown, fallback: T): T {
   if (value === null || value === undefined) {
@@ -184,6 +192,7 @@ export class TrekPlanService {
   static async update(id: string, data: Partial<Omit<TrekPlan, 'id' | 'createdAt'>>): Promise<TrekPlan | null> {
     const updateFields: string[] = [];
     const params: any[] = [];
+    data.trekDate = formatMySQLTimestamp(data.trekDate);
 
     if (data.name !== undefined) {
       updateFields.push('name = ?');
@@ -239,7 +248,7 @@ export class TrekPlanService {
     }
 
     updateFields.push('updated_at = ?');
-    params.push(new Date().toISOString());
+    params.push(formatMySQLTimestamp(new Date()));
     params.push(id);
 
     await executeUpdate(
