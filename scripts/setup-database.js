@@ -22,15 +22,16 @@ async function setupDatabase() {
     connection = await mysql.createConnection(dbConfig);
     console.log("✅ Connected to MySQL server");
 
+    const dbName = process.env.DB_NAME || "forttracker";
     // Create database if it doesn't exist
-    console.log("📋 Creating database if not exists...");
+    console.log(`📋 Creating database ${dbName} if not exists...`);
     await connection.execute(
-      `CREATE DATABASE IF NOT EXISTS forttracker CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci`,
+      `CREATE DATABASE IF NOT EXISTS \`${dbName}\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci`,
     );
-    console.log("✅ Database forttracker ensured");
+    console.log(`✅ Database ${dbName} ensured`);
 
     // Use the database
-    await connection.execute("USE forttracker");
+    await connection.execute(`USE \`${dbName}\``);
 
     // Read and execute migration files
     console.log("🔧 Running migrations...");

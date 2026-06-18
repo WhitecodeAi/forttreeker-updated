@@ -1,5 +1,4 @@
 -- Seed Users and Admin Data
-USE forttracker;
 
 -- Insert default admin user
 -- Password is 'admin123' hashed with bcrypt

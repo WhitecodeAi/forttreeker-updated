@@ -1,5 +1,4 @@
 -- Add tables for dynamic content management
-USE forttracker;
 
 -- Create site_content table for footer, pages, and other dynamic content
 CREATE TABLE IF NOT EXISTS site_content (
@@ -64,15 +63,15 @@ CREATE TABLE IF NOT EXISTS trek_group_participants (
 -- Insert default footer content
 INSERT IGNORE INTO site_content (type, content) VALUES
 ('footer', JSON_OBJECT(
-    'aboutText', 'Fort Tracker helps you discover and explore the magnificent forts of Maharashtra. Plan your treks, read reviews, and connect with fellow trekkers for unforgettable adventures.',
+    'aboutText', 'NomadTrekkers helps you discover and explore the magnificent forts of Maharashtra. Plan your treks, read reviews, and connect with fellow trekkers for unforgettable adventures.',
     'contactEmail', 'contact@nomadtrekkers.org',
     'contactPhone', '+91 9876543210',
     'address', 'Pune, Maharashtra, India',
     'socialLinks', JSON_OBJECT(
-        'facebook', 'https://facebook.com/forttracker',
-        'twitter', 'https://twitter.com/forttracker',
-        'instagram', 'https://instagram.com/forttracker',
-        'youtube', 'https://youtube.com/forttracker'
+        'facebook', 'https://www.facebook.com/NomadTrekkers/',
+        'twitter', 'https://twitter.com/nomadtrekkers',
+        'instagram', 'https://instagram.com/nomadtrekkers',
+        'youtube', 'https://youtube.com/nomadtrekkers'
     ),
     'quickLinks', JSON_ARRAY(
         JSON_OBJECT('name', 'About Us', 'url', '/about'),

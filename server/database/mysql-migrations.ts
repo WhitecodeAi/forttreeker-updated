@@ -271,6 +271,56 @@ export async function runMigrations(): Promise<void> {
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
     `);
 
+    // Create site_content table for footer, pages, and other dynamic content
+    await executeQuery(`
+      CREATE TABLE IF NOT EXISTS site_content (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        type ENUM('footer', 'page', 'announcement', 'feature') NOT NULL,
+        slug VARCHAR(255) NULL,
+        content JSON NOT NULL,
+        is_published BOOLEAN DEFAULT TRUE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        INDEX idx_type (type),
+        INDEX idx_slug (slug),
+        INDEX idx_is_published (is_published),
+        UNIQUE KEY unique_type_slug (type, slug)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    `);
+
+    // Seed default footer content if not exists
+    try {
+      const footerExists = await executeQuery(`SELECT id FROM site_content WHERE type = 'footer'`);
+      if (footerExists.length === 0) {
+        await executeQuery(`
+          INSERT INTO site_content (type, content) VALUES
+          ('footer', ?)
+        `, [JSON.stringify({
+          aboutText: 'NomadTrekkers helps you discover and explore the magnificent forts of Maharashtra. Plan your treks, read reviews, and connect with fellow trekkers for unforgettable adventures.',
+          contactEmail: 'contact@nomadtrekkers.org',
+          contactPhone: '+91 9876543210',
+          address: 'Pune, Maharashtra, India',
+          socialLinks: {
+            facebook: 'https://www.facebook.com/NomadTrekkers/',
+            twitter: 'https://twitter.com/nomadtrekkers',
+            instagram: 'https://instagram.com/nomadtrekkers',
+            youtube: 'https://youtube.com/nomadtrekkers'
+          },
+          quickLinks: [
+            { name: 'About Us', url: '/about' },
+            { name: 'All Forts', url: '/forts' },
+            { name: 'Trek Planner', url: '/trek-planner' },
+            { name: 'Find Groups', url: '/trek-groups' },
+            { name: 'Guides', url: '/guides' },
+            { name: 'Contact', url: '/contact' }
+          ]
+        })]);
+        console.log("✅ Default footer content created in database");
+      }
+    } catch (err) {
+      console.log("ℹ️ Default footer content creation skipped/failed:", err.message);
+    }
+
     // Insert default admin user if not exists
     try {
       const adminExists = await executeQuery(`SELECT id FROM users WHERE email = ? AND role = 'admin'`, ['admin@nomadtrekkers.org']);
@@ -298,12 +348,12 @@ export async function runMigrations(): Promise<void> {
 // Function to check if migrations are needed
 export async function checkMigrationStatus(): Promise<boolean> {
   try {
-    const requiredTables = ['content_submissions', 'trek_groups', 'trek_group_participants'];
+    const requiredTables = ['content_submissions', 'trek_groups', 'trek_group_participants', 'site_content'];
     const tables = await executeQuery(`
       SELECT TABLE_NAME 
       FROM INFORMATION_SCHEMA.TABLES 
       WHERE TABLE_SCHEMA = DATABASE() 
-      AND TABLE_NAME IN (? , ? , ?)
+      AND TABLE_NAME IN (? , ? , ? , ?)
     `, requiredTables);
 
     const existingTableNames = tables.map((row: any) => row.TABLE_NAME);

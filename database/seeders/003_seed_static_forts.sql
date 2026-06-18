@@ -1,6 +1,5 @@
 -- Seed Static Fort Data from forts.ts into database
 -- This creates content submissions and fort_info records for all static forts
-USE forttracker;
 
 -- Insert static fort data as approved content submissions
 INSERT INTO content_submissions (type, title, content, submitted_by, status, reviewed_by, reviewed_at) 

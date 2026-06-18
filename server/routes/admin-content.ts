@@ -17,16 +17,25 @@ router.get("/footer-content", async (req, res) => {
     `);
 
     if (footerContent) {
+      let content = footerContent.content;
+      if (typeof content === "string") {
+        try {
+          content = JSON.parse(content);
+        } catch (e) {
+          console.error("Failed to parse footer content JSON:", e);
+        }
+      }
+
       res.json({
         success: true,
         data: {
           id: footerContent.id,
-          aboutText: footerContent.content.aboutText,
-          contactEmail: footerContent.content.contactEmail,
-          contactPhone: footerContent.content.contactPhone,
-          address: footerContent.content.address,
-          socialLinks: footerContent.content.socialLinks,
-          quickLinks: footerContent.content.quickLinks,
+          aboutText: content?.aboutText || "",
+          contactEmail: content?.contactEmail || "",
+          contactPhone: content?.contactPhone || "",
+          address: content?.address || "",
+          socialLinks: content?.socialLinks || {},
+          quickLinks: content?.quickLinks || [],
           updatedAt: footerContent.updated_at,
         },
       });
@@ -531,15 +540,25 @@ router.get("/pages", async (req, res) => {
 
     res.json({
       success: true,
-      data: pages.map((page) => ({
-        id: page.id,
-        slug: page.slug,
-        title: page.content.title,
-        content: page.content.content,
-        isPublished: page.is_published,
-        createdAt: page.created_at,
-        updatedAt: page.updated_at,
-      })),
+      data: pages.map((page) => {
+        let content = page.content;
+        if (typeof content === "string") {
+          try {
+            content = JSON.parse(content);
+          } catch (e) {
+            console.error("Failed to parse page content:", e);
+          }
+        }
+        return {
+          id: page.id,
+          slug: page.slug,
+          title: content?.title || "",
+          content: content?.content || "",
+          isPublished: page.is_published,
+          createdAt: page.created_at,
+          updatedAt: page.updated_at,
+        };
+      }),
     });
   } catch (error) {
     console.error("Error fetching pages:", error);
