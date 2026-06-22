@@ -1,20 +1,20 @@
 -- Add tables for dynamic content management
-USE forttracker;
+USE forttreaker;
 
 -- Create site_content table for footer, pages, and other dynamic content
 CREATE TABLE IF NOT EXISTS site_content (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    type ENUM('footer', 'page', 'announcement', 'feature') NOT NULL,
-    slug VARCHAR(255) NULL,
-    content JSON NOT NULL,
+    `type` VARCHAR(50) NOT NULL,
+    slug VARCHAR(255) NULL DEFAULT NULL,
+    content LONGTEXT NOT NULL,  -- Use LONGTEXT for MySQL < 5.7.8
     is_published BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     
-    INDEX idx_type (type),
+    INDEX idx_type (`type`),
     INDEX idx_slug (slug),
     INDEX idx_is_published (is_published),
-    UNIQUE KEY unique_type_slug (type, slug)
+    UNIQUE KEY unique_type_slug (`type`, slug)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Create trek_groups table
@@ -44,6 +44,10 @@ CREATE TABLE IF NOT EXISTS trek_groups (
     INDEX idx_status (status),
     FULLTEXT KEY idx_search (title, description, fort_name)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+SHOW WARNINGS;
+
+SHOW ERRORS;
 
 -- Create trek_group_participants table
 CREATE TABLE IF NOT EXISTS trek_group_participants (

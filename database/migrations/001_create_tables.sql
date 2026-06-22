@@ -10,7 +10,7 @@ CREATE DATABASE IF NOT EXISTS forttracker
 CHARACTER SET utf8mb4 
 COLLATE utf8mb4_unicode_ci;
 
-USE forttracker;
+USE forttreaker;
 
 -- Drop tables in reverse dependency order (if they exist)
 DROP TABLE IF EXISTS trek_plans;
