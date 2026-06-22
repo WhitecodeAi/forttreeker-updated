@@ -271,6 +271,13 @@ export async function runMigrations(): Promise<void> {
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
     `);
 
+    // Create site_content table
+    await executeQuery(`
+      CREATE TABLE IF NOT EXISTS site_content (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        type VARCHAR(50) NOT NULL,
+        slug VARCHAR(255) NULL DEFAULT NULL,
+        content LONGTEXT NOT NULL,
     // Create site_content table for footer, pages, and other dynamic content
     await executeQuery(`
       CREATE TABLE IF NOT EXISTS site_content (
@@ -288,6 +295,7 @@ export async function runMigrations(): Promise<void> {
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
     `);
 
+    // Insert default footer content if not exists
     // Seed default footer content if not exists
     try {
       const footerExists = await executeQuery(`SELECT id FROM site_content WHERE type = 'footer'`);
@@ -296,6 +304,15 @@ export async function runMigrations(): Promise<void> {
           INSERT INTO site_content (type, content) VALUES
           ('footer', ?)
         `, [JSON.stringify({
+          aboutText: 'Fort Tracker helps you discover and explore the magnificent forts of Maharashtra. Plan your treks, read reviews, and connect with fellow trekkers for unforgettable adventures.',
+          contactEmail: 'contact@forttracker.com',
+          contactPhone: '+91 9876543210',
+          address: 'Pune, Maharashtra, India',
+          socialLinks: {
+            facebook: 'https://facebook.com/forttracker',
+            twitter: 'https://twitter.com/forttracker',
+            instagram: 'https://instagram.com/forttracker',
+            youtube: 'https://youtube.com/forttracker'
           aboutText: 'NomadTrekkers helps you discover and explore the magnificent forts of Maharashtra. Plan your treks, read reviews, and connect with fellow trekkers for unforgettable adventures.',
           contactEmail: 'contact@nomadtrekkers.org',
           contactPhone: '+91 9876543210',
@@ -315,6 +332,10 @@ export async function runMigrations(): Promise<void> {
             { name: 'Contact', url: '/contact' }
           ]
         })]);
+        console.log("✅ Default footer content created");
+      }
+    } catch (error) {
+      console.log("ℹ️ Footer content creation skipped:", error);
         console.log("✅ Default footer content created in database");
       }
     } catch (err) {
@@ -353,6 +374,7 @@ export async function checkMigrationStatus(): Promise<boolean> {
       SELECT TABLE_NAME 
       FROM INFORMATION_SCHEMA.TABLES 
       WHERE TABLE_SCHEMA = DATABASE() 
+      AND TABLE_NAME IN (?, ?, ?, ?)
       AND TABLE_NAME IN (? , ? , ? , ?)
     `, requiredTables);
 

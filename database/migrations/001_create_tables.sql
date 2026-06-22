@@ -5,6 +5,13 @@
 -- Enable foreign key checks
 SET FOREIGN_KEY_CHECKS = 1;
 
+-- Create database if not exists
+CREATE DATABASE IF NOT EXISTS forttracker 
+CHARACTER SET utf8mb4 
+COLLATE utf8mb4_unicode_ci;
+
+USE forttreaker;
+
 -- Drop tables in reverse dependency order (if they exist)
 DROP TABLE IF EXISTS trek_plans;
 DROP TABLE IF EXISTS fort_reviews;
