@@ -248,7 +248,7 @@ export default function SiteContentManagement() {
                           contactEmail: e.target.value,
                         }))
                       }
-                      placeholder="contact@forttracker.com"
+                      placeholder="contact@nomadtrekkers.org"
                     />
                   </div>
 

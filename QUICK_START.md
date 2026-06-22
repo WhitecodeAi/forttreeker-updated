@@ -65,8 +65,8 @@ npm run dev
 ### 4. Access Application
 
 - **URL:** http://localhost:8080
-- **Admin Login:** admin@forttracker.com / admin123
-- **Demo Login:** demo@forttracker.com / demo123
+- **Admin Login:** admin@nomadtrekkers.org / admin123
+- **Demo Login:** demo@nomadtrekkers.org / demo123
 
 ## 🎯 What You Get
 

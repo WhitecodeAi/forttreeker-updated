@@ -1,5 +1,4 @@
 -- Seed Sample Trek Groups Data
-USE forttracker;
 
 -- Insert sample trek groups (using demo user as organizer)
 INSERT INTO trek_groups (

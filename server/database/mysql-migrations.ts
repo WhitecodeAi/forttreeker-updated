@@ -278,6 +278,13 @@ export async function runMigrations(): Promise<void> {
         type VARCHAR(50) NOT NULL,
         slug VARCHAR(255) NULL DEFAULT NULL,
         content LONGTEXT NOT NULL,
+    // Create site_content table for footer, pages, and other dynamic content
+    await executeQuery(`
+      CREATE TABLE IF NOT EXISTS site_content (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        type ENUM('footer', 'page', 'announcement', 'feature') NOT NULL,
+        slug VARCHAR(255) NULL,
+        content JSON NOT NULL,
         is_published BOOLEAN DEFAULT TRUE,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -289,6 +296,7 @@ export async function runMigrations(): Promise<void> {
     `);
 
     // Insert default footer content if not exists
+    // Seed default footer content if not exists
     try {
       const footerExists = await executeQuery(`SELECT id FROM site_content WHERE type = 'footer'`);
       if (footerExists.length === 0) {
@@ -305,6 +313,15 @@ export async function runMigrations(): Promise<void> {
             twitter: 'https://twitter.com/forttracker',
             instagram: 'https://instagram.com/forttracker',
             youtube: 'https://youtube.com/forttracker'
+          aboutText: 'NomadTrekkers helps you discover and explore the magnificent forts of Maharashtra. Plan your treks, read reviews, and connect with fellow trekkers for unforgettable adventures.',
+          contactEmail: 'contact@nomadtrekkers.org',
+          contactPhone: '+91 9876543210',
+          address: 'Pune, Maharashtra, India',
+          socialLinks: {
+            facebook: 'https://www.facebook.com/NomadTrekkers/',
+            twitter: 'https://twitter.com/nomadtrekkers',
+            instagram: 'https://instagram.com/nomadtrekkers',
+            youtube: 'https://youtube.com/nomadtrekkers'
           },
           quickLinks: [
             { name: 'About Us', url: '/about' },
@@ -319,20 +336,24 @@ export async function runMigrations(): Promise<void> {
       }
     } catch (error) {
       console.log("ℹ️ Footer content creation skipped:", error);
+        console.log("✅ Default footer content created in database");
+      }
+    } catch (err) {
+      console.log("ℹ️ Default footer content creation skipped/failed:", err.message);
     }
 
     // Insert default admin user if not exists
     try {
-      const adminExists = await executeQuery(`SELECT id FROM users WHERE email = ? AND role = 'admin'`, ['admin@forttracker.com']);
+      const adminExists = await executeQuery(`SELECT id FROM users WHERE email = ? AND role = 'admin'`, ['admin@nomadtrekkers.org']);
       if (adminExists.length === 0) {
         const hashedPassword = await bcrypt.hash('admin123', 10);
 
         await executeQuery(`
           INSERT INTO users (email, password_hash, full_name, role, is_active, email_verified)
           VALUES (?, ?, ?, ?, ?, ?)
-        `, ['admin@forttracker.com', hashedPassword, 'System Administrator', 'admin', true, true]);
+        `, ['admin@nomadtrekkers.org', hashedPassword, 'System Administrator', 'admin', true, true]);
 
-        console.log("✅ Default admin user created (admin@forttracker.com / admin123)");
+        console.log("✅ Default admin user created (admin@nomadtrekkers.org / admin123)");
       }
     } catch (error) {
       console.log("ℹ️ Admin user creation skipped (table may already be populated)");
@@ -354,6 +375,7 @@ export async function checkMigrationStatus(): Promise<boolean> {
       FROM INFORMATION_SCHEMA.TABLES 
       WHERE TABLE_SCHEMA = DATABASE() 
       AND TABLE_NAME IN (?, ?, ?, ?)
+      AND TABLE_NAME IN (? , ? , ? , ?)
     `, requiredTables);
 
     const existingTableNames = tables.map((row: any) => row.TABLE_NAME);

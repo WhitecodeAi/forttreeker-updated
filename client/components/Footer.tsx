@@ -64,15 +64,15 @@ export default function Footer() {
     setFooterContent({
       id: 0,
       aboutText:
-        "Fort Tracker helps you discover and explore the magnificent forts of Maharashtra. Plan your treks, read reviews, and connect with fellow trekkers for unforgettable adventures.",
-      contactEmail: "contact@forttracker.com",
+        "NomadTrekkers helps you discover and explore the magnificent forts of Maharashtra. Plan your treks, read reviews, and connect with fellow trekkers for unforgettable adventures.",
+      contactEmail: "contact@nomadtrekkers.org",
       contactPhone: "+91 9876543210",
       address: "Pune, Maharashtra, India",
       socialLinks: {
-        facebook: "https://facebook.com/forttracker",
-        twitter: "https://twitter.com/forttracker",
-        instagram: "https://instagram.com/forttracker",
-        youtube: "https://youtube.com/forttracker",
+        facebook: "https://www.facebook.com/NomadTrekkers/",
+        twitter: "https://twitter.com/nomadtrekkers",
+        instagram: "https://instagram.com/nomadtrekkers",
+        youtube: "https://youtube.com/nomadtrekkers",
       },
       quickLinks: [
         { name: "About Us", url: "/about" },

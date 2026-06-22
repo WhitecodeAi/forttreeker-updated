@@ -1,12 +1,11 @@
 -- Seed Users and Admin Data
-USE forttracker;
 
 -- Insert default admin user
 -- Password is 'admin123' hashed with bcrypt
 INSERT INTO users (email, password_hash, full_name, role, is_active, email_verified) 
 VALUES 
-('admin@forttracker.com', '$2b$10$rGKqHILgNmj1lTfOHZG9OeLM.JQQ7WkGQNKNXpV8kY2yVqGKtH0N2', 'System Administrator', 'admin', TRUE, TRUE),
-('demo@forttracker.com', '$2b$10$rGKqHILgNmj1lTfOHZG9OeLM.JQQ7WkGQNKNXpV8kY2yVqGKtH0N2', 'Demo User', 'user', TRUE, TRUE);
+('admin@nomadtrekkers.org', '$2b$10$rGKqHILgNmj1lTfOHZG9OeLM.JQQ7WkGQNKNXpV8kY2yVqGKtH0N2', 'System Administrator', 'admin', TRUE, TRUE),
+('demo@nomadtrekkers.org', '$2b$10$rGKqHILgNmj1lTfOHZG9OeLM.JQQ7WkGQNKNXpV8kY2yVqGKtH0N2', 'Demo User', 'user', TRUE, TRUE);
 
 -- Insert sample content submissions for approved forts
 INSERT INTO content_submissions (type, title, content, submitted_by, status, reviewed_by, reviewed_at) 

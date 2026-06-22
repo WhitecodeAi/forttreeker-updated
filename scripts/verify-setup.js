@@ -69,7 +69,7 @@ async function verifySetup() {
     // Test admin user
     const [adminUser] = await connection.execute(
       "SELECT email, role FROM users WHERE email = ?",
-      ["admin@forttracker.com"],
+      ["admin@nomadtrekkers.org"],
     );
 
     if (adminUser.length > 0) {
@@ -108,7 +108,7 @@ async function verifySetup() {
     console.log("\n📝 Next steps:");
     console.log("   1. Start the application: npm run dev");
     console.log("   2. Open browser: http://localhost:8080");
-    console.log("   3. Login with: admin@forttracker.com / admin123");
+    console.log("   3. Login with: admin@nomadtrekkers.org / admin123");
 
     return true;
   } catch (error) {

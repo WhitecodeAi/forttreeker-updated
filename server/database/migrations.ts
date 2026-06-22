@@ -181,7 +181,7 @@ export async function runMigrations(): Promise<void> {
     // Insert default admin user if not exists
     await executeQuery(`
       INSERT IGNORE INTO admin_users (username, email, password_hash, full_name, role)
-      VALUES ('admin', 'admin@forttracker.com', '$2b$10$rGKqHILgNmj1lTfOHZG9OeLM.JQQ7WkGQNKNXpV8kY2yVqGKtH0N2', 'System Administrator', 'admin')
+      VALUES ('admin', 'admin@nomadtrekkers.org', '$2b$10$rGKqHILgNmj1lTfOHZG9OeLM.JQQ7WkGQNKNXpV8kY2yVqGKtH0N2', 'System Administrator', 'admin')
     `);
 
     // Create indexes for better performance

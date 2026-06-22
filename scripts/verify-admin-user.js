@@ -47,7 +47,7 @@ async function verifyAdmin() {
     // Check if admin user exists
     const [users] = await connection.execute(
       `SELECT * FROM users WHERE email = ?`,
-      ['admin@forttracker.com']
+      ['admin@nomadtrekkers.org']
     );
 
     if (users.length > 0) {
@@ -81,9 +81,9 @@ async function verifyAdmin() {
       await connection.execute(
         `INSERT INTO users (email, password_hash, full_name, role, is_active, email_verified)
          VALUES (?, ?, ?, ?, ?, ?)`,
-        ['admin@forttracker.com', newHash, 'System Administrator', 'admin', 1, 1]
+        ['admin@nomadtrekkers.org', newHash, 'System Administrator', 'admin', 1, 1]
       );
-      console.log("✅ Admin user created (admin@forttracker.com / admin123).");
+      console.log("✅ Admin user created (admin@nomadtrekkers.org / admin123).");
     }
 
   } catch (error) {

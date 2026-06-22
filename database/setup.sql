@@ -9,7 +9,6 @@ SOURCE database/seeders/003_seed_static_forts.sql;
 SOURCE database/seeders/004_seed_trek_groups.sql;
 
 -- Verify the setup
-USE forttracker;
 
 -- Show table counts
 SELECT 'users' as table_name, COUNT(*) as count FROM users

@@ -137,12 +137,12 @@ The database includes these main tables:
 After setup, you can login with:
 
 **Admin Account:**
-- Email: `admin@forttracker.com`
+- Email: `admin@nomadtrekkers.org`
 - Password: `admin123`
 - Role: Administrator (full access)
 
 **Demo Account:**
-- Email: `demo@forttracker.com`
+- Email: `demo@nomadtrekkers.org`
 - Password: `demo123`
 - Role: Regular User
 
