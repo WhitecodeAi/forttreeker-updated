@@ -234,7 +234,7 @@ router.post("/", requireAuth, async (req: any, res) => {
 
 router.post("/:id/join", requireAuth, async (req: any, res) => {
   try {
-    console.log(req.headers);
+    
     const id = req.params.id;
     const userId = req.body.userId;
 
@@ -320,6 +320,28 @@ router.post("/:id/join", requireAuth, async (req: any, res) => {
     });
   }
 });
+
+router.get("/members/:id", requireAdmin, async (req, res) => {
+  try{
+    const { id } = req.params;
+    const participants = await executeQuery(
+      `SELECT u.id, u.full_name, u.email, gp.group_id
+       FROM trek_group_participants gp
+       JOIN users u ON gp.user_id = u.id
+       WHERE gp.group_id = ?`
+      , [id]);
+
+    console.log(participants);
+    res.status(200).json({
+      success: true,
+      Message: "fetched successfuly",
+      data: participants
+    })
+
+  }catch(error){
+    console.log("Something went wrong while fetching group members: ", error);
+  }
+})
 
 router.delete("/:id", requireAdmin, async (req, res) => {
   try {

@@ -33,6 +33,10 @@ import {
   Filter,
   Search,
   Plus,
+  Mail,
+  Copy,
+  Check,
+  Loader2,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
@@ -42,7 +46,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { json } from "stream/consumers";
 
 
 
@@ -71,6 +74,13 @@ interface TrekGroup {
   tags: string[];
 }
 
+interface GroupMember {
+  id: number;
+  full_name: string;
+  email: string;
+  group_id: number;
+}
+
 export default function TrekGroups() {
   const [groups, setGroups] = useState<TrekGroup[]>([]);
   const [loading, setLoading] = useState(true);
@@ -81,6 +91,11 @@ export default function TrekGroups() {
   const [creatingGroup, setCreatingGroup] = useState(false);
   const [selectedChatGroup, setSelectedChatGroup] = useState<number | null>(null);
   const [openChatDialog, setOpenChatDialog] = useState(false);
+  const [selectedMembers, setSelectedMembers] = useState<GroupMember[]>([]);
+  const [loadingMembers, setLoadingMembers] = useState(false);
+  const [openMembersDialog, setOpenMembersDialog] = useState(false);
+  const [selectedGroupName, setSelectedGroupName] = useState("");
+  const [copiedEmail, setCopiedEmail] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -333,12 +348,58 @@ export default function TrekGroups() {
          credentials: "include"
       });
 
-      console.log("THis is delete response: ", response.body);
-
       if(response.ok){
         fetchTrekGroups();
       }
   }
+
+  
+  const getmembers = async (id: number) => {
+    try {
+      const response = await fetch(`/api/trek-groups/members/${id}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        credentials: "include"
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        return result.data;
+      }
+    } catch (error) {
+      console.log("Something went wrong: ", error);
+    }
+  };
+
+  const handleViewMembers = async (groupId: number, groupTitle: string) => {
+    setSelectedGroupName(groupTitle);
+    setOpenMembersDialog(true);
+    setLoadingMembers(true);
+    try {
+      const data = await getmembers(groupId);
+      if (data) {
+        setSelectedMembers(data);
+      } else {
+        setSelectedMembers([]);
+      }
+    } catch (error) {
+      console.error("Error setting members:", error);
+      setSelectedMembers([]);
+    } finally {
+      setLoadingMembers(false);
+    }
+  };
+
+  const handleCopyEmail = (email: string) => {
+    navigator.clipboard.writeText(email);
+    setCopiedEmail(email);
+    setTimeout(() => {
+      setCopiedEmail(null);
+    }, 2000);
+  };
 
   const filteredGroups = groups.filter((group) => {
     const matchesSearch =
@@ -864,11 +925,24 @@ export default function TrekGroups() {
                       <span className="font-medium">Meeting Point: </span>
                       <span>{group.meetingPoint}</span>
                     </div>
-                    {user?.full_name === group.organizer.name?
-                     <Button className="bg-orange-500 hover:bg-orange-600"
-                     onClick={() => deletegroup(group.id)}>
-                        Delete Group
-                     </Button>:<></>}
+                    
+                    {user?.full_name === group.organizer.name ? (
+                      <div className="flex m-[10px] gap-[6px]">
+                        <Button
+                          className="bg-black hover:bg-gray-800 text-white font-medium flex items-center gap-2"
+                          onClick={() => handleViewMembers(group.id, group.title)}
+                        >
+                          <Users className="h-4 w-4" />
+                          Group Members
+                        </Button>
+                        <Button
+                          className="bg-orange-500 hover:bg-orange-600"
+                          onClick={() => deletegroup(group.id)}
+                        >
+                          Delete Group
+                        </Button>
+                      </div>
+                    ) : null}
                   </details>
                 </div>
                 
@@ -912,6 +986,110 @@ export default function TrekGroups() {
                 You'll be able to message with other group members here.
               </p>
             </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Group Members Dialog */}
+        <Dialog open={openMembersDialog} onOpenChange={setOpenMembersDialog}>
+          <DialogContent className="sm:max-w-[500px] p-6 overflow-hidden rounded-xl border border-gray-150 shadow-2xl bg-white">
+            <DialogHeader className="mb-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-orange-100 text-orange-600 rounded-lg">
+                  <Users className="h-6 w-6" />
+                </div>
+                <div>
+                  <DialogTitle className="text-xl font-bold text-gray-900 tracking-tight">
+                    Group Members
+                  </DialogTitle>
+                  <DialogDescription className="text-sm text-gray-500 mt-1 line-clamp-1">
+                    {selectedGroupName}
+                  </DialogDescription>
+                </div>
+              </div>
+            </DialogHeader>
+
+            {loadingMembers ? (
+              <div className="flex flex-col items-center justify-center py-12 space-y-4">
+                <Loader2 className="h-8 w-8 text-orange-500 animate-spin" />
+                <p className="text-sm text-gray-500 font-medium animate-pulse">
+                  Fetching group members...
+                </p>
+              </div>
+            ) : !selectedMembers || selectedMembers.length === 0 ? (
+              <div className="text-center py-12 border-2 border-dashed border-gray-100 rounded-xl bg-gray-50/50">
+                <Users className="h-12 w-12 text-gray-300 mx-auto mb-3" />
+                <h3 className="text-sm font-semibold text-gray-900">No members found</h3>
+                <p className="text-xs text-gray-500 mt-1">
+                  No participants have joined this group yet.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div className="flex justify-between items-center text-xs font-semibold text-gray-400 tracking-wider uppercase border-b pb-2">
+                  <span>Participant</span>
+                  <span>Actions</span>
+                </div>
+                <div className="max-h-[350px] overflow-y-auto pr-1 space-y-2.5 custom-scrollbar">
+                  {selectedMembers.map((member) => (
+                    <div
+                      key={member.id}
+                      className="flex items-center justify-between p-3 rounded-lg border border-gray-100 bg-white shadow-sm hover:border-orange-100 hover:shadow transition-all duration-200"
+                    >
+                      <div className="flex items-center gap-3">
+                        <Avatar className="h-10 w-10 border border-gray-100">
+                          <AvatarFallback className="bg-gradient-to-br from-orange-400 to-red-500 text-white font-semibold text-sm">
+                            {member.full_name
+                              .split(" ")
+                              .map((n) => n[0])
+                              .join("")
+                              .toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="space-y-0.5">
+                          <div className="font-semibold text-sm text-gray-800">
+                            {member.full_name}
+                          </div>
+                          <div className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-gray-700 transition-colors">
+                            <Mail className="h-3.5 w-3.5 text-gray-400" />
+                            <span>{member.email}</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <a
+                          href={`mailto:${member.email}`}
+                          className="p-1.5 rounded-md hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
+                          title="Send Email"
+                        >
+                          <Mail className="h-4 w-4" />
+                        </a>
+                        <button
+                          onClick={() => handleCopyEmail(member.email)}
+                          className={`p-1.5 rounded-md transition-all duration-200 ${
+                            copiedEmail === member.email
+                              ? "bg-green-50 text-green-600 hover:bg-green-100"
+                              : "hover:bg-gray-100 text-gray-400 hover:text-gray-600"
+                          }`}
+                          title="Copy Email"
+                        >
+                          {copiedEmail === member.email ? (
+                            <Check className="h-4 w-4" />
+                          ) : (
+                            <Copy className="h-4 w-4" />
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div className="flex justify-between items-center text-xs text-gray-500 bg-gray-50 p-2.5 rounded-lg mt-2">
+                  <span className="font-medium">Total Registered:</span>
+                  <span className="font-bold text-orange-600 px-2 py-0.5 bg-orange-100/50 rounded-full">
+                    {selectedMembers.length} members
+                  </span>
+                </div>
+              </div>
+            )}
           </DialogContent>
         </Dialog>
       </div>
